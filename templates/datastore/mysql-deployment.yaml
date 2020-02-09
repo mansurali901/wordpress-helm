@@ -1,0 +1,37 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Values.identifier.name  }}
+  labels:
+    app: {{ .Values.identifier.webtier }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.identifier.webtier | toYaml }}
+      tier: {{ .Values.identifier.dbtier | toYaml }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.identifier.webtier | toYaml }}
+        tier: {{ .Values.identifier.dbtier | toYaml }} 
+    spec:
+      containers:
+      - image: {{ .Values.identifier.mysqlimage | toYaml }}
+        name: {{ .Values.identifier.dbtier | toYaml }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.Secret.mysqlpass }}
+        ports:
+        - containerPort: 3306
+          name: {{ .Values.identifier.dbtier | toYaml }} 
+        {{- if .Values.pvrequired.enabled }}
+        volumeMounts:
+        - name: {{ .Values.identifier.mysqlmountname | toYaml }}
+          mountPath: {{ .Values.identifier.mysqlpath | toYaml }}
+      volumes:
+      - name: {{ .Values.identifier.mysqlmountname | toYaml }}
+        persistentVolumeClaim:
+          claimName:  {{ .Values.identifier.pvncame | toYaml }}
+         {{- end }}

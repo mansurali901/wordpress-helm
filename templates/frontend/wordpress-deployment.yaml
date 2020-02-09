@@ -1,0 +1,47 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Values.frontend.appname }}
+  labels:
+    app: {{ .Values.frontend.appname }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.frontend.appname }}
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.frontend.appname }}
+        tier: frontend
+    spec:
+      containers:
+      - image: wordpress:4.8-apache
+        name: {{ .Values.frontend.appname }}
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: {{ .Values.identifier.name }}
+        - name: WORDPRESS_DB_PASSWORD
+          value: {{ .Values.Secret.mysqlpass }}
+        ports:
+        - containerPort: 80
+          name: {{ .Values.frontend.appname }}
+      {{- if .Values.pvcdev.enabled }}
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.pvcvalues.pvcdev }}
+      {{- else }}
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.pvcvalues.pvcprod }}
+      {{- end }} 

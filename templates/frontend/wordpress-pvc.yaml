@@ -1,0 +1,27 @@
+{{- if .Values.pvcdev.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.pvcvalues.pvcdev }}
+  labels:
+    app: {{ .Values.appname.appdev }} 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+{{- else }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.pvcvalues.pvcprod }}
+  labels:
+    app: {{ .Values.appname.appprod }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+{{- end }}
