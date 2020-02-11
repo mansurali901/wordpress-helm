@@ -37,7 +37,7 @@ service:
   port: 80
 
 ingress:
-  enabled: false
+  enabled: true
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
@@ -71,6 +71,9 @@ metaMaterial:
   enabled: true
 
 #### FrontEnd Values
+hostname: 
+  dnsname: wordpress.amz-link-labs.com
+
 frontend:
   appname: wordpress
 public:
